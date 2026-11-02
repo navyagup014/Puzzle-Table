@@ -1,0 +1,1285 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Puzzle Table</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --room:#EFE7DA; --room-2:#E3D8C6;
+  --card:#FBF6EC; --card-2:#F2EADC;
+  --wood:#A9784A; --wood-d:#7A5230; --wood-l:#C99E6E;
+  --kraft:#D8BF97; --kraft-2:#C6A97C;
+  --cork:#C7A576; --cork-d:#A8875B;
+  --ink:#2A211A; --ink-2:#5A4A3C; --ink-3:#8A7563;
+  --line:#D6C7AE; --line-2:#BFAA8B;
+  --accent:#2F6F5E; --accent-soft:#D5E5DE; --accent-ink:#FFFFFF;
+  --gold:#B8863B; --gold-soft:#F0E1C0;
+  --danger:#9C3B22;
+  --shadow:0 1px 2px rgba(42,33,26,.10), 0 10px 26px rgba(42,33,26,.10);
+  --wall:#E7DCCB; --wall-2:#D9CBB5; --floor:#B89A72;
+  --font-d:"Fraunces",Georgia,serif;
+  --font-b:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --font-m:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --room:#1B1611; --room-2:#141009; --card:#26201A; --card-2:#2F2820;
+    --wood:#6B4A2E; --wood-d:#4A3320; --wood-l:#8C6741;
+    --kraft:#5A472F; --kraft-2:#6B563B; --cork:#6E5837; --cork-d:#513F26;
+    --ink:#F3EADC; --ink-2:#CDBEA9; --ink-3:#9C8A73;
+    --line:#43372A; --line-2:#5B4B38;
+    --accent:#63BFA5; --accent-soft:#1E3A33; --accent-ink:#10201B;
+    --gold:#E0B45F; --gold-soft:#3A2E16; --danger:#E08A6A;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px rgba(0,0,0,.4);
+    --wall:#221C15; --wall-2:#191410; --floor:#3A2C1D;
+  }
+}
+:root[data-theme="dark"]{
+  --room:#1B1611; --room-2:#141009; --card:#26201A; --card-2:#2F2820;
+  --wood:#6B4A2E; --wood-d:#4A3320; --wood-l:#8C6741;
+  --kraft:#5A472F; --kraft-2:#6B563B; --cork:#6E5837; --cork-d:#513F26;
+  --ink:#F3EADC; --ink-2:#CDBEA9; --ink-3:#9C8A73;
+  --line:#43372A; --line-2:#5B4B38;
+  --accent:#63BFA5; --accent-soft:#1E3A33; --accent-ink:#10201B;
+  --gold:#E0B45F; --gold-soft:#3A2E16; --danger:#E08A6A;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px rgba(0,0,0,.4);
+  --wall:#221C15; --wall-2:#191410; --floor:#3A2C1D;
+}
+*{box-sizing:border-box}
+body{background:var(--room);color:var(--ink);font-family:var(--font-b);font-size:15px;line-height:1.5;margin:0}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+h1,h2,h3{margin:0;text-wrap:balance}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+
+/* ---------- top bar ---------- */
+.topbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:11px;padding-inline:16px;
+  background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:60}
+.wordmark{font-family:var(--font-d);font-weight:700;font-size:21px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.wordmark svg{width:21px;height:21px;flex:none}
+.tabs{display:flex;gap:4px;background:var(--card-2);padding:4px;border-radius:11px;border:1px solid var(--line);flex-wrap:wrap}
+.tabs button{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--ink-2);display:flex;align-items:center;gap:7px}
+.tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(42,33,26,.14);font-weight:600}
+.pill{font-family:var(--font-m);font-size:11px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:1px 7px}
+.pill.quiet{background:var(--line-2);color:var(--ink)}
+.spacer{flex:1 1 20px}
+.clock{display:flex;flex-direction:column;line-height:1.15}
+.clock b{font-family:var(--font-m);font-size:17px;font-weight:500;font-variant-numeric:tabular-nums}
+.lbl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.view[hidden]{display:none}
+.wrap{max-width:1560px;margin:0 auto;padding-inline:16px;padding-block:16px}
+
+/* ---------- controls ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:10px 13px;box-shadow:var(--shadow);margin-bottom:14px}
+.field{display:flex;align-items:center;gap:7px}
+select{font:inherit;font-size:14px;color:var(--ink);background:var(--card-2);border:1px solid var(--line-2);
+  border-radius:8px;padding:6px 10px;cursor:pointer}
+.btn{border:1px solid var(--line-2);background:var(--card-2);border-radius:8px;padding:7px 12px;font-size:14px;
+  font-weight:500;display:inline-flex;align-items:center;gap:7px;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--room-2);border-color:var(--ink-3)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost-danger{border-color:transparent;background:none;color:var(--ink-2)}
+.btn.ghost-danger:hover{color:var(--danger);border-color:var(--danger);background:none}
+.sep{width:1px;align-self:stretch;background:var(--line);margin-inline:2px}
+.zoomer{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:var(--card-2)}
+.zoomer button{padding:6px 11px;font-size:15px;line-height:1;border-right:1px solid var(--line-2)}
+.zoomer button:last-child{border-right:none;font-size:13px}
+.zoomer button:hover{background:var(--room-2)}
+.zoomer .pct{font-family:var(--font-m);font-size:12px;padding:0 8px;color:var(--ink-2);min-width:50px;text-align:center;font-variant-numeric:tabular-nums}
+.pop{position:relative}
+.popmenu{position:absolute;right:0;top:calc(100% + 7px);background:var(--card);border:1px solid var(--line);
+  border-radius:11px;box-shadow:var(--shadow);padding:12px;min-width:232px;z-index:40;display:flex;flex-direction:column;gap:11px}
+.popmenu[hidden]{display:none}
+.popmenu h3{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.switch{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.track{width:38px;height:22px;border-radius:999px;background:var(--room-2);border:1px solid var(--line-2);position:relative;transition:background .18s;flex:none}
+.track::after{content:"";position:absolute;inset:2px auto 2px 2px;width:16px;border-radius:50%;background:var(--ink-3);transition:transform .18s,background .18s}
+.switch input:checked + .track{background:var(--accent-soft);border-color:var(--accent)}
+.switch input:checked + .track::after{transform:translateX(16px);background:var(--accent)}
+.switch .txt{font-size:13.5px;color:var(--ink-2)}
+
+/* ---------- bench ---------- */
+.bench{display:grid;grid-template-columns:var(--l,250px) minmax(0,1fr) var(--r,250px);align-items:stretch}
+@media (max-width:1000px){.bench{grid-template-columns:minmax(0,1fr);gap:12px}}
+.drawer{background:linear-gradient(var(--wood-l),var(--wood));border:1px solid var(--wood-d);
+  display:flex;flex-direction:column;box-shadow:var(--shadow);min-width:0;transition:none}
+.drawer.left{border-radius:12px 0 0 12px;border-right:none}
+.drawer.right{border-radius:0 12px 12px 0;border-left:none}
+@media (max-width:1000px){.drawer{border-radius:12px!important;border:1px solid var(--wood-d)!important}
+  .drawer .pile{min-height:130px}}
+.drawer-head{display:flex;align-items:center;gap:7px;padding:9px 9px 8px}
+.trayname{flex:1;min-width:0;background:rgba(0,0,0,.16);border:1px solid rgba(255,240,220,.22);border-radius:6px;
+  color:#FFF3E2;font:inherit;font-size:12.5px;font-weight:600;padding:4px 7px;letter-spacing:.02em}
+.trayname:hover{background:rgba(0,0,0,.26)}
+.drawer-head .n{font-family:var(--font-m);font-size:11px;background:rgba(0,0,0,.3);color:#FFF3E2;border-radius:999px;padding:2px 7px;flex:none}
+.fold{color:#FFF3E2;font-size:14px;line-height:1;padding:4px 6px;border-radius:6px;flex:none}
+.fold:hover{background:rgba(0,0,0,.22)}
+.pile{position:relative;flex:1;margin:0 9px 9px;border-radius:5px;overflow:auto;
+  display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;padding:8px;
+  background:repeating-linear-gradient(51deg,rgba(120,90,55,.10) 0 3px,transparent 3px 7px),
+    repeating-linear-gradient(-49deg,rgba(120,90,55,.08) 0 3px,transparent 3px 8px),var(--kraft);
+  box-shadow:inset 0 2px 7px rgba(60,40,20,.34), inset 0 -1px 0 rgba(255,240,215,.18)}
+.pile.over{box-shadow:inset 0 0 0 3px var(--accent)}
+.pile .piece{position:static;flex:none}
+.pile-empty{margin:auto;text-align:center;font-size:12px;line-height:1.45;color:#6B5233;padding:6px}
+:root[data-theme="dark"] .pile-empty{color:#D9C4A4}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pile-empty{color:#D9C4A4}}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .pile-empty{color:#6B5233}}
+.drawer-pull{height:9px;margin:0 auto 9px;width:52px;border-radius:999px;background:var(--wood-d);box-shadow:inset 0 1px 0 rgba(255,225,190,.25)}
+/* collapsed rail */
+.drawer.folded .pile,.drawer.folded .drawer-pull,.drawer.folded .trayname{display:none}
+.drawer.folded .drawer-head{flex-direction:column;height:100%;justify-content:flex-start;gap:12px;padding-top:12px}
+.drawer.folded .railname{writing-mode:vertical-rl;color:#FFF3E2;font-size:12px;font-weight:600;letter-spacing:.08em}
+.railname{display:none}
+.drawer.folded .railname{display:block}
+
+.stage{position:relative;overflow:hidden;background:
+    radial-gradient(130% 100% at 50% 0%,rgba(255,244,225,.18),transparent 62%),
+    repeating-linear-gradient(92deg,rgba(0,0,0,.035) 0 2px,transparent 2px 9px),
+    linear-gradient(var(--wood),var(--wood-d));
+  border:1px solid var(--wood-d);height:min(72vh,660px);touch-action:none;cursor:grab}
+@media (max-width:1000px){.stage{border-radius:12px;height:min(60vh,500px)}}
+.stage.panning{cursor:grabbing}
+.surface{position:absolute;left:0;top:0;transform-origin:0 0}
+.board{position:absolute;border-radius:3px;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 4px,transparent 4px 9px),var(--cork);
+  box-shadow:inset 0 0 0 2px var(--cork-d), 0 4px 16px rgba(40,26,12,.45);transition:box-shadow .5s}
+.board.done{box-shadow:inset 0 0 0 2px var(--gold), 0 0 44px rgba(184,134,59,.65), 0 4px 16px rgba(40,26,12,.45)}
+.board canvas{display:block;border-radius:2px}
+.piece{position:absolute;cursor:grab;--rot:0deg;transform:rotate(var(--rot));transform-origin:50% 50%;
+  filter:drop-shadow(0 2px 3px rgba(38,26,14,.42));transition:transform .16s ease}
+.piece.dragging{cursor:grabbing;filter:drop-shadow(0 11px 13px rgba(30,18,8,.5));transition:none}
+.piece.sel{outline:2px dashed var(--accent);outline-offset:3px}
+@keyframes seat{0%{transform:rotate(var(--rot)) scale(1.07);filter:drop-shadow(0 0 16px var(--gold))}
+  60%{transform:rotate(var(--rot)) scale(.995)}
+  100%{transform:rotate(var(--rot)) scale(1);filter:drop-shadow(0 2px 3px rgba(38,26,14,.42))}}
+.piece.seated{animation:seat .34s cubic-bezier(.2,.9,.3,1)}
+@keyframes joinflash{0%{filter:drop-shadow(0 0 12px var(--accent))}100%{filter:drop-shadow(0 2px 3px rgba(38,26,14,.42))}}
+.piece.joined{animation:joinflash .42s ease-out}
+
+/* reference lid */
+.lid{position:absolute;right:16px;bottom:16px;z-index:30;width:186px;
+  background:linear-gradient(var(--wood-l),var(--wood));border:1px solid var(--wood-d);border-radius:7px;
+  padding:7px;box-shadow:0 12px 26px rgba(30,18,8,.5);transform:rotate(-2.2deg);cursor:grab;touch-action:none}
+.lid.grabbing{cursor:grabbing}
+.lid[hidden]{display:none}
+.lid canvas{display:block;width:100%;border-radius:3px;border:1px solid var(--wood-d)}
+.lid-bar{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 1px 6px}
+.lid-bar span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#FFF3E2;font-weight:700}
+.lid-bar button{color:#FFF3E2;font-size:14px;line-height:1;padding:1px 5px;border-radius:5px}
+.lid-bar button:hover{background:rgba(0,0,0,.25)}
+
+/* finish banner — celebrates without hiding the picture */
+.banner{position:absolute;left:50%;top:14px;transform:translate(-50%,-160%);z-index:35;
+  background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:11px 14px;
+  box-shadow:0 14px 34px rgba(30,18,8,.45);display:flex;align-items:center;gap:14px;transition:transform .5s cubic-bezier(.2,.9,.3,1)}
+.banner.show{transform:translate(-50%,0)}
+.banner b{font-family:var(--font-d);font-size:16px}
+.banner .sub{font-family:var(--font-m);font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hint{font-size:12px;color:var(--ink-2);padding:10px 2px 0;display:flex;flex-wrap:wrap;gap:4px 14px}
+.hint kbd{font-family:var(--font-m);font-size:11px;background:var(--card-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+/* ---------- cards ---------- */
+.gridcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pick{padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);
+  box-shadow:var(--shadow);text-align:left;display:flex;flex-direction:column;transition:transform .16s,box-shadow .16s}
+.pick:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(42,33,26,.2)}
+.pick canvas,.pick img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover}
+.pick .meta{padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.pick .meta b{font-family:var(--font-d);font-size:16px;font-weight:600}
+.pick .tagline{font-size:12px;color:var(--ink-2)}
+.pick[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft),var(--shadow)}
+.uploadcard{border:2px dashed var(--line-2);border-radius:12px;display:grid;place-items:center;text-align:center;
+  padding:26px 18px;color:var(--ink-2);cursor:pointer;background:var(--card-2);min-height:210px;gap:4px}
+.uploadcard:hover{border-color:var(--accent);color:var(--accent)}
+.uploadcard b{font-family:var(--font-d);font-size:17px;display:block}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.section-head h2{font-family:var(--font-d);font-size:24px;font-weight:700}
+.section-head p{margin:0;font-size:13.5px;color:var(--ink-2);max-width:62ch}
+.mini{display:flex;gap:8px;padding:0 12px 12px;flex-wrap:wrap}
+.progline{height:6px;border-radius:999px;background:var(--room-2);overflow:hidden;margin:0 12px 10px}
+.progline div{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold))}
+.stamp{font-family:var(--font-m);font-size:11px;color:var(--ink-2);padding:0 12px 10px;display:flex;justify-content:space-between;gap:8px}
+.empty-state{border:1.5px dashed var(--line-2);border-radius:12px;padding:34px 20px;text-align:center;color:var(--ink-2);background:var(--card)}
+.empty-state h3{font-family:var(--font-d);font-size:20px;margin-bottom:6px;color:var(--ink)}
+.empty-state p{margin:0 auto 14px;max-width:46ch;font-size:14px}
+
+/* ---------- gallery ---------- */
+.room{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.roomscroll{position:relative;overflow-x:auto;overflow-y:hidden;height:min(66vh,560px);
+  background:linear-gradient(var(--wall) 0 70%,var(--wall-2) 70% 74%,var(--floor) 74%)}
+.lights{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(255,240,210,.2) 0 130px,transparent 130px 360px)}
+.railing{position:absolute;left:0;right:0;top:70%;height:4px;background:var(--wood-d);opacity:.5}
+.hangrow{position:relative;display:flex;align-items:center;gap:46px;height:100%;padding:0 52px;min-width:100%}
+.monthgroup{flex:none;display:flex;flex-direction:column;align-items:center;gap:16px;height:100%;justify-content:center}
+.monthlabel{font-family:var(--font-d);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);
+  border-bottom:1px solid var(--line-2);padding-bottom:5px;width:100%;text-align:center}
+.monthrow{display:flex;gap:44px;align-items:center}
+.hung{flex:none;display:flex;flex-direction:column;align-items:center;gap:11px;cursor:pointer;transition:transform .2s}
+.hung:hover{transform:translateY(-5px) scale(1.012)}
+.plaque{background:var(--card);border:1px solid var(--line);border-radius:3px;padding:6px 11px;text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);max-width:236px}
+.plaque b{display:block;font-family:var(--font-d);font-size:14px;font-weight:600}
+.plaque span{font-family:var(--font-m);font-size:10.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.room-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
+.room-empty div{max-width:44ch}
+.room-empty h3{font-family:var(--font-d);font-size:22px;margin-bottom:6px}
+.room-empty p{margin:0 0 14px;color:var(--ink-2);font-size:14px}
+
+/* frames */
+.frame{position:relative;background:#fff;line-height:0;box-shadow:0 14px 26px rgba(30,20,10,.34), 0 2px 4px rgba(0,0,0,.22)}
+.frame img{display:block;width:100%;height:auto}
+.frame.swatch{width:54px;height:40px}
+.frame.md{width:248px} .frame.lg{width:100%;max-width:330px}
+.fr-oak{border:14px solid transparent;padding:3px;background-image:linear-gradient(#fff,#fff),linear-gradient(145deg,#D7A972,#BC8D57 45%,#8E6334);background-origin:border-box;background-clip:content-box,border-box}
+.fr-gilt{border:16px solid transparent;padding:4px;background-image:linear-gradient(#fff,#fff),linear-gradient(145deg,#E7C87E,#B8863B 40%,#7E5A1E 62%,#E3C273);background-origin:border-box;background-clip:content-box,border-box}
+.fr-deco{border:14px solid #1D1B18;padding:5px;background:#1D1B18;box-shadow:0 0 0 4px #B8863B,0 0 0 6px #1D1B18,0 14px 26px rgba(30,20,10,.36)}
+.fr-whimsy{border:12px solid #E8A6A0;padding:6px;background:#E8A6A0;border-radius:22px;box-shadow:0 0 0 4px #F6D9C4,0 14px 26px rgba(30,20,10,.3)}
+.fr-whimsy img{border-radius:12px}
+.fr-white{border:11px solid #F4F1EA;padding:10px;background:#F4F1EA;box-shadow:0 0 0 1px #D9D2C4,0 14px 26px rgba(30,20,10,.26)}
+.fr-walnut{border:15px solid #4A3221;padding:4px;background:#4A3221;box-shadow:inset 0 0 0 3px #8A6540,0 14px 26px rgba(30,20,10,.4)}
+.frame-pick{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.frame-pick button{padding:0;border-radius:4px;line-height:0}
+.frame-pick button[aria-pressed="true"]{outline:2.5px solid var(--accent);outline-offset:3px}
+.frame-name{font-size:11px;color:var(--ink-2);display:block;text-align:center;margin-top:3px;line-height:1.2}
+.titlefield{font:inherit;font-size:15px;width:100%;padding:8px 11px;border:1px solid var(--line-2);border-radius:8px;
+  background:var(--card-2);color:var(--ink);text-align:center;font-family:var(--font-d);margin-bottom:8px;display:block;resize:vertical}
+#editFields[hidden]{display:none}
+.plaque em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-2);margin-top:3px;line-height:1.35;font-family:var(--font-b)}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(26,20,14,.62);display:grid;place-items:center;padding:16px;z-index:100;overflow:auto}
+.scrim[hidden]{display:none}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 26px 70px rgba(0,0,0,.42);
+  max-width:430px;width:100%;padding:24px;text-align:center;display:flex;flex-direction:column;gap:14px}
+.modal h2{font-family:var(--font-d);font-size:26px;font-weight:700}
+.modal p{margin:0;font-size:14px;color:var(--ink-2)}
+.finish-stats{display:flex;justify-content:center;gap:24px;font-family:var(--font-m);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,90px);background:var(--ink);color:var(--room);
+  padding:10px 17px;border-radius:999px;font-size:13.5px;z-index:200;transition:transform .25s ease;pointer-events:none}
+.toast.show{transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<header class="topbar">
+  <div class="wordmark">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--accent)" d="M9.4 2.2a2.6 2.6 0 0 1 5.2 0c0 .5-.2.9-.4 1.3h3.6c.6 0 1 .4 1 1v3.6c.4-.2.8-.4 1.3-.4a2.6 2.6 0 0 1 0 5.2c-.5 0-.9-.2-1.3-.4v6.9c0 .6-.4 1-1 1h-6.9c.2-.4.4-.8.4-1.3a2.6 2.6 0 0 0-5.2 0c0 .5.2.9.4 1.3H3.6c-.6 0-1-.4-1-1v-6.9c.4.2.8.4 1.3.4a2.6 2.6 0 0 0 0-5.2c-.5 0-.9.2-1.3.4V4.5c0-.6.4-1 1-1h6.2c-.2-.4-.4-.8-.4-1.3z"/></svg>
+    Puzzle Table
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-table" aria-selected="true">Table</button>
+    <button role="tab" id="tab-progress" aria-selected="false">In progress <span class="pill quiet" id="progPill">0</span></button>
+    <button role="tab" id="tab-pictures" aria-selected="false">Pictures</button>
+    <button role="tab" id="tab-gallery" aria-selected="false">Gallery <span class="pill" id="galPill">0</span></button>
+  </nav>
+  <div class="spacer"></div>
+  <div class="clock"><span class="lbl">Time at the table</span><b id="clockv">0:00</b></div>
+</header>
+
+<!-- ================= TABLE ================= -->
+<section class="view wrap" id="view-table">
+  <div class="toolbar">
+    <div class="field"><span class="lbl">Pieces</span>
+      <select id="difficulty" aria-label="Number of pieces">
+        <option value="12">12 — gentle</option>
+        <option value="30" selected>30 — steady</option>
+        <option value="63">63 — tricky</option>
+        <option value="108">108 — a whole evening</option>
+      </select>
+    </div>
+    <div class="field"><span class="lbl">Guide</span>
+      <select id="guide" aria-label="Board guide">
+        <option value="off">Bare board</option>
+        <option value="outline" selected>Piece outlines</option>
+        <option value="ghost">Outlines + faint picture</option>
+        <option value="picture">Faint picture only</option>
+      </select>
+    </div>
+    <div class="zoomer">
+      <button id="zoomOut" aria-label="Zoom out">−</button>
+      <span class="pct" id="zoomPct">100%</span>
+      <button id="zoomIn" aria-label="Zoom in">+</button>
+      <button id="zoomFit">Fit</button>
+    </div>
+    <button class="btn" id="shuffle">Shuffle loose</button>
+    <button class="btn" id="lidBtn" aria-pressed="true">Reference</button>
+    <button class="btn" id="foldBtn">Hide trays</button>
+    <div class="spacer"></div>
+    <div class="pop">
+      <button class="btn" id="setBtn" aria-expanded="false">Settings</button>
+      <div class="popmenu" id="setMenu" hidden>
+        <h3>Settings</h3>
+        <label class="switch" for="sound"><input type="checkbox" id="sound" checked><span class="track"></span><span class="txt">Sound when pieces join</span></label>
+        <label class="switch" for="autosave"><input type="checkbox" id="autosave" checked><span class="track"></span><span class="txt">Keep this puzzle in progress</span></label>
+      </div>
+    </div>
+    <div class="sep"></div>
+    <button class="btn ghost-danger" id="restart">Start over</button>
+  </div>
+
+  <div class="bench" id="bench">
+    <aside class="drawer left" id="drawer0">
+      <div class="drawer-head">
+        <input class="trayname" id="name0" value="Edges" aria-label="Name of tray one" maxlength="18">
+        <span class="railname" id="rail0">Edges</span>
+        <span class="n" id="n0">0</span>
+        <button class="fold" data-fold="0" aria-label="Fold tray one away">‹</button>
+      </div>
+      <div class="pile" id="pile0"></div>
+      <div class="drawer-pull"></div>
+    </aside>
+
+    <div class="stage" id="stage">
+      <div class="surface" id="surface"><div class="board" id="board"><canvas id="boardCv"></canvas></div></div>
+      <div class="lid" id="lid">
+        <div class="lid-bar"><span>The picture</span><button id="lidClose" aria-label="Hide the reference picture">×</button></div>
+        <canvas id="lidCv"></canvas>
+      </div>
+      <div class="banner" id="banner">
+        <div><b id="bannerTitle">Finished.</b><div class="sub" id="bannerSub"></div></div>
+        <button class="btn primary" id="frameIt">Frame it</button>
+        <button class="btn" id="keepLooking">Just look</button>
+      </div>
+    </div>
+
+    <aside class="drawer right" id="drawer1">
+      <div class="drawer-head">
+        <button class="fold" data-fold="1" aria-label="Fold tray two away">›</button>
+        <input class="trayname" id="name1" value="Colors" aria-label="Name of tray two" maxlength="18">
+        <span class="railname" id="rail1">Colors</span>
+        <span class="n" id="n1">0</span>
+      </div>
+      <div class="pile" id="pile1"></div>
+      <div class="drawer-pull"></div>
+    </aside>
+  </div>
+
+  <div class="hint">
+    <span>Pieces start turned every which way — <b>double-click</b> one to turn it a quarter.</span>
+    <span>Drag pieces in and out of the trays. Drag the table to pan · scroll or pinch to zoom.</span>
+    <span><kbd>R</kbd> rotates the piece under your cursor · <kbd>N</kbd>/<kbd>P</kbd> pick · <kbd>↑↓←→</kbd> move · <kbd>Enter</kbd> place</span>
+  </div>
+</section>
+
+<!-- ================= IN PROGRESS ================= -->
+<section class="view wrap" id="view-progress" hidden>
+  <div class="section-head">
+    <h2>In progress</h2>
+    <p>Puzzles you've started are kept here exactly as you left them. Switching pictures never throws one away.</p>
+  </div>
+  <div class="gridcards" id="progList"></div>
+  <div class="empty-state" id="progEmpty" hidden>
+    <h3>Nothing on the go</h3>
+    <p>Start a puzzle and it will be saved here automatically, so you can leave it half-done and come back whenever.</p>
+    <button class="btn primary" id="progToPics">Pick a picture</button>
+  </div>
+</section>
+
+<!-- ================= PICTURES ================= -->
+<section class="view wrap" id="view-pictures" hidden>
+  <div class="section-head">
+    <h2>Pick a picture</h2>
+    <p>Choosing one starts a fresh puzzle. Whatever you're working on is saved to In progress first.</p>
+  </div>
+  <div class="gridcards" id="libs"></div>
+</section>
+
+<!-- ================= GALLERY ================= -->
+<section class="view wrap" id="view-gallery" hidden>
+  <div class="section-head">
+    <h2>Your gallery</h2>
+    <p>Everything you've finished, hung by the month you finished it. Click any piece to rename it or change its frame.</p>
+  </div>
+  <div class="room">
+    <div class="roomscroll" id="roomscroll">
+      <div class="lights" aria-hidden="true"></div>
+      <div class="railing" aria-hidden="true"></div>
+      <div class="hangrow" id="hangrow"></div>
+      <div class="room-empty" id="roomEmpty" hidden>
+        <div><h3>The wall is waiting</h3>
+        <p>Finish a puzzle and it gets framed and hung here, with your title and the date.</p>
+        <button class="btn primary" id="toTable">Go to the table</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODALS ================= -->
+<div class="scrim" id="scrim" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="finTitle">
+    <h2 id="finTitle">Name it and frame it</h2>
+    <div id="finPreview"></div>
+    <div id="editFields" hidden>
+      <input class="titlefield" id="finName" maxlength="42" placeholder="Give it a name" aria-label="Title for this puzzle">
+      <textarea class="titlefield" id="finDesc" rows="2" maxlength="180" placeholder="A note about it, if you like" aria-label="Description"></textarea>
+    </div>
+    <div class="finish-stats"><span id="finCut"></span><span id="finTime"></span></div>
+    <div class="frame-pick" id="framePick"></div>
+    <button class="btn primary" id="hangIt">Hang it in the gallery</button>
+    <div class="row">
+      <button class="btn" id="share">Share</button>
+      <button class="btn" id="again">New puzzle</button>
+      <button class="btn ghost-danger" id="takeDown" hidden>Take it down</button>
+    </div>
+  </div>
+</div>
+
+<div class="scrim" id="confirm" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cfTitle">
+    <h2 id="cfTitle">Start this one over?</h2>
+    <p id="cfBody">The pieces go back to the table and the clock resets. Nothing else you've made is affected.</p>
+    <button class="btn primary" id="cfYes">Yes, start over</button>
+    <button class="btn" id="cfNo">Keep going</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* ============ picture library (drawn in code) ============ */
+const LIB=[
+ {name:"Coast Road", note:"Warm, big shapes — a kind first puzzle", draw(c,w,h){
+   const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,"#F5C77E");g.addColorStop(.45,"#E88B60");g.addColorStop(1,"#8E4A63");
+   c.fillStyle=g;c.fillRect(0,0,w,h);
+   c.fillStyle="#FBE9C4";c.beginPath();c.arc(w*.7,h*.34,h*.1,0,7);c.fill();
+   const ridge=(y,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(0,h);for(let x=0;x<=w;x+=w/14)c.lineTo(x,y+Math.sin(x/w*7)*h*.05+Math.cos(x/w*3)*h*.04);c.lineTo(w,h);c.fill();};
+   ridge(h*.62,"#6E4363");ridge(h*.76,"#4A2F51");ridge(h*.88,"#2C1D38");}},
+ {name:"Tide Pool", note:"Lots of blue-green — a real hunt", draw(c,w,h){
+   c.fillStyle="#0E4C5C";c.fillRect(0,0,w,h);
+   for(let i=0;i<28;i++){const r=h*(.05+Math.random()*.22);c.beginPath();c.arc(Math.random()*w,Math.random()*h,r,0,7);
+     c.fillStyle=`hsla(${175+Math.random()*45},${45+Math.random()*30}%,${35+Math.random()*40}%,.5)`;c.fill();}
+   c.strokeStyle="rgba(230,255,250,.5)";c.lineWidth=Math.max(1,h/160);
+   for(let i=0;i<9;i++){c.beginPath();for(let x=0;x<=w;x+=8)c.lineTo(x,h*(i+.5)/9+Math.sin(x/38+i)*h*.022);c.stroke();}}},
+ {name:"Bauhaus Blocks", note:"Flat color blocks, easy to sort", draw(c,w,h){
+   c.fillStyle="#F0E9DA";c.fillRect(0,0,w,h);
+   const P=["#D8452F","#1F5FA8","#E9B321","#17181A","#2E7D5B"],cols=6,rows=4,cw=w/cols,ch=h/rows;
+   for(let r=0;r<rows;r++)for(let k=0;k<cols;k++){
+     if(Math.random()<.22)continue;
+     c.fillStyle=P[(r*cols+k+Math.floor(Math.random()*5))%P.length];
+     const x=k*cw,y=r*ch,m=Math.random();c.beginPath();
+     if(m<.33)c.arc(x+cw/2,y+ch/2,Math.min(cw,ch)/2,0,7);
+     else if(m<.55){c.moveTo(x,y+ch);c.lineTo(x+cw/2,y);c.lineTo(x+cw,y+ch);}
+     else if(m<.78){c.arc(x,y+ch,Math.min(cw,ch),-Math.PI/2,0);c.lineTo(x,y+ch);}
+     else c.rect(x+cw*.08,y+ch*.08,cw*.84,ch*.84);
+     c.fill();}}},
+ {name:"Night Field", note:"Dark and starry — save it for later", draw(c,w,h){
+   const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,"#070B23");g.addColorStop(.6,"#152350");g.addColorStop(1,"#3A2A57");
+   c.fillStyle=g;c.fillRect(0,0,w,h);
+   for(let i=0;i<220;i++){const s=Math.random()*h*.004+h*.0015;c.fillStyle=`rgba(255,252,230,${.3+Math.random()*.7})`;
+     c.beginPath();c.arc(Math.random()*w,Math.random()*h*.72,s,0,7);c.fill();}
+   c.strokeStyle="rgba(255,250,220,.25)";c.lineWidth=h/170;c.beginPath();
+   for(let x=0;x<=w;x+=6)c.lineTo(x,h*.5+Math.sin(x/60)*h*.06);c.stroke();
+   c.fillStyle="#0B1020";c.beginPath();c.moveTo(0,h);
+   for(let x=0;x<=w;x+=w/20)c.lineTo(x,h*.82+Math.sin(x/w*11)*h*.03);c.lineTo(w,h);c.fill();}},
+ {name:"Orchard", note:"Busy and bright — sort by flower color", draw(c,w,h){
+   c.fillStyle="#DCE8C8";c.fillRect(0,0,w,h);
+   c.fillStyle="#B9CF9A";for(let i=0;i<7;i++)c.fillRect(0,h*i/7,w,h*.055);
+   const P=["#E2574C","#F2A03D","#F4D35E","#E86A92","#FFFFFF"];
+   for(let i=0;i<90;i++){const x=Math.random()*w,y=h*.25+Math.random()*h*.75,r=h*(.018+Math.random()*.028);
+     c.fillStyle="#6F8F4E";c.fillRect(x-r*.08,y,r*.16,h*.09);
+     c.fillStyle=P[i%P.length];
+     for(let p=0;p<5;p++){c.beginPath();c.arc(x+Math.cos(p*1.257)*r,y+Math.sin(p*1.257)*r,r*.72,0,7);c.fill();}
+     c.fillStyle="#F7E7A1";c.beginPath();c.arc(x,y,r*.42,0,7);c.fill();}}},
+ {name:"Paper Marble", note:"Flowing bands — good for edge-first", draw(c,w,h){
+   c.fillStyle="#FBF3E4";c.fillRect(0,0,w,h);
+   const P=["#1B4D74","#C7452F","#2F7E68","#E2A93B","#6C3E7A"];
+   for(let i=0;i<14;i++){
+     c.strokeStyle=P[i%P.length];c.lineWidth=h*(.01+Math.random()*.05);c.globalAlpha=.62;
+     c.beginPath();const off=Math.random()*h,amp=h*(.03+Math.random()*.1),f=1+Math.random()*3;
+     for(let x=0;x<=w;x+=5)c.lineTo(x,off+Math.sin(x/w*Math.PI*f+i)*amp+Math.sin(x/23)*h*.012);
+     c.stroke();}
+   c.globalAlpha=1;}}
+];
+const FRAMES=[{key:"oak",name:"Oak"},{key:"gilt",name:"Gilded"},{key:"deco",name:"Art Deco"},
+  {key:"whimsy",name:"Whimsical"},{key:"white",name:"Gallery"},{key:"walnut",name:"Walnut"}];
+
+/* ============ state ============ */
+const TOL=18;                                   // forgiving, but well under half a cell
+const TRAYS=2;
+let rows=0,cols=0,cellW=0,cellH=0,margin=0,boardW=0,boardH=0,boardX=0,boardY=0,SW=0,SH=0;
+let hTab=[],vTab=[],P=[],parent=[],zTop=10;
+const srcCv=document.createElement("canvas"),srcCtx=srcCv.getContext("2d");
+let current={type:"lib",idx:0},currentName=LIB[0].name;
+let trays=Array.from({length:TRAYS},()=>[]);
+let t0=0,timerId=null,elapsed=0,running=false,finished=false,sel=null;
+let zoom=1,panX=0,panY=0,pendingFrame="oak",puzzleId=null,editing=null;
+const stage=$("#stage"),surface=$("#surface"),boardEl=$("#board"),boardCv=$("#boardCv");
+
+const find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+const union=(a,b)=>{a=find(a);b=find(b);if(a===b)return false;parent[b]=a;return true;};
+/* ponytail: O(n) group scan — fine to ~500 pieces. */
+const groupOf=p=>{const r=find(p.i);return P.filter(q=>find(q.i)===r);};
+
+/* ============ geometry ============
+   Profiles must be symmetric about a=0.5 — neighbours trace the shared
+   edge in opposite directions, so an asymmetric curve leaves gaps. */
+function edge(ctx,x0,y0,x1,y1,t){
+  if(!t){ctx.lineTo(x1,y1);return;}
+  const len=Math.hypot(x1-x0,y1-y0),dx=(x1-x0)/len,dy=(y1-y0)/len,nx=dy,ny=-dx;
+  const Pt=(a,b)=>[x0+dx*a*len+nx*b*len*t, y0+dy*a*len+ny*b*len*t];
+  ctx.lineTo(...Pt(0.42,0));
+  ctx.bezierCurveTo(...Pt(0.30,0.30),...Pt(0.70,0.30),...Pt(0.58,0));
+  ctx.lineTo(x1,y1);
+}
+function piecePath(ctx,r,c){
+  const x0=c*cellW,y0=r*cellH,x1=x0+cellW,y1=y0+cellH;
+  ctx.beginPath();ctx.moveTo(x0,y0);
+  edge(ctx,x0,y0,x1,y0,-hTab[r][c]);
+  edge(ctx,x1,y0,x1,y1, vTab[r][c+1]);
+  edge(ctx,x1,y1,x0,y1, hTab[r+1][c]);
+  edge(ctx,x0,y1,x0,y0,-vTab[r][c]);
+  ctx.closePath();
+}
+function paint(p){
+  p.el.style.left=p.x+"px";p.el.style.top=p.y+"px";
+  p.el.style.setProperty("--rot",p.rot+"deg");
+}
+const rotVec=(x,y,deg)=>{const a=deg*Math.PI/180,s=Math.sin(a),c=Math.cos(a);return{x:x*c-y*s,y:x*s+y*c};};
+const atHome=p=>p.tray<0&&p.rot%360===0&&Math.abs(p.x-p.hx)<0.5&&Math.abs(p.y-p.hy)<0.5;
+const placedCount=()=>P.filter(atHome).length;
+
+/* ============ view ============ */
+function applyView(){surface.style.transform=`translate(${panX}px,${panY}px) scale(${zoom})`;
+  $("#zoomPct").textContent=Math.round(zoom*100)+"%";}
+function clampPan(){
+  const r=stage.getBoundingClientRect(),w=SW*zoom,h=SH*zoom;
+  panX = w<=r.width ? (r.width-w)/2 : Math.min(0,Math.max(r.width-w,panX));
+  panY = h<=r.height ? (r.height-h)/2 : Math.min(0,Math.max(r.height-h,panY));
+}
+function setZoom(z,ax,ay){
+  const r=stage.getBoundingClientRect();
+  ax=ax??r.width/2;ay=ay??r.height/2;
+  const nz=Math.min(2.6,Math.max(0.22,z)), sx=(ax-panX)/zoom, sy=(ay-panY)/zoom;
+  zoom=nz;panX=ax-sx*zoom;panY=ay-sy*zoom;clampPan();applyView();
+}
+function fitView(){
+  const r=stage.getBoundingClientRect();
+  zoom=Math.min(1.2,Math.min(r.width/SW,r.height/SH));
+  clampPan();applyView();
+}
+const toSurface=(cx,cy)=>{const r=stage.getBoundingClientRect();
+  return{x:(cx-r.left-panX)/zoom,y:(cy-r.top-panY)/zoom};};
+
+/* ============ build ============ */
+function renderSource(){
+  srcCv.width=boardW;srcCv.height=boardH;
+  srcCtx.setTransform(1,0,0,1,0,0);srcCtx.clearRect(0,0,boardW,boardH);
+  if(current.type==="lib")LIB[current.idx].draw(srcCtx,boardW,boardH);
+  else{const im=current.img,s=Math.max(boardW/im.width,boardH/im.height);
+    srcCtx.drawImage(im,(boardW-im.width*s)/2,(boardH-im.height*s)/2,im.width*s,im.height*s);}
+  const lc=$("#lidCv");lc.width=340;lc.height=255;
+  lc.getContext("2d").drawImage(srcCv,0,0,340,255);
+}
+function drawBoardBacking(){
+  const g=boardCv.getContext("2d");
+  boardCv.width=boardW;boardCv.height=boardH;
+  g.clearRect(0,0,boardW,boardH);
+  const mode=$("#guide").value;
+  if(mode==="off")return;
+  if(mode==="ghost"||mode==="picture"){g.globalAlpha=.19;g.drawImage(srcCv,0,0);}
+  if(mode==="picture"){g.globalAlpha=1;return;}
+  g.globalAlpha=.55;
+  g.strokeStyle=getComputedStyle(document.body).getPropertyValue("--ink-3");g.lineWidth=1;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){piecePath(g,r,c);g.stroke();}
+  g.globalAlpha=1;
+}
+function buildPuzzle(restore){
+  if(!restore)saveProgress();                          // never lose what's on the table
+  const st=stage.getBoundingClientRect();
+  if(restore){
+    rows=restore.rows;cols=restore.cols;boardW=restore.bw;boardH=restore.bh;
+    hTab=restore.hTab;vTab=restore.vTab;
+    $("#difficulty").value=String(restore.count);
+    $("#guide").value=restore.guide||"outline";
+    puzzleId=restore.id;elapsed=restore.elapsed||0;
+    $("#name0").value=restore.trayNames?.[0]||"Edges";
+    $("#name1").value=restore.trayNames?.[1]||"Colors";
+  }else{
+    const target=+$("#difficulty").value, aspect=4/3;
+    boardW=Math.round(Math.min(860,Math.max(340,st.width*0.80)));
+    boardH=Math.round(boardW/aspect);
+    cols=Math.max(2,Math.round(Math.sqrt(target*aspect)));
+    rows=Math.max(2,Math.round(target/cols));
+    hTab=[];vTab=[];
+    for(let q=0;q<=rows;q++){hTab[q]=[];for(let c=0;c<cols;c++)hTab[q][c]=(q===0||q===rows)?0:(Math.random()<.5?-1:1);}
+    for(let q=0;q<rows;q++){vTab[q]=[];for(let c=0;c<=cols;c++)vTab[q][c]=(c===0||c===cols)?0:(Math.random()<.5?-1:1);}
+    puzzleId=Date.now();elapsed=0;
+  }
+  cellW=boardW/cols;cellH=boardH/rows;
+  margin=Math.ceil(0.34*Math.max(cellW,cellH));
+  const w=Math.ceil(cellW+margin*2),h=Math.ceil(cellH+margin*2);
+
+  // generous apron of table around the board so loose pieces have room
+  SW=Math.round(boardW+w*4.4); SH=Math.round(boardH+h*4.4);
+  boardX=Math.round((SW-boardW)/2); boardY=Math.round((SH-boardH)/2);
+  surface.style.width=SW+"px";surface.style.height=SH+"px";
+  Object.assign(boardEl.style,{left:boardX+"px",top:boardY+"px",width:boardW+"px",height:boardH+"px"});
+
+  renderSource();drawBoardBacking();
+  boardEl.classList.remove("done");
+  $("#banner").classList.remove("show");
+
+  P.forEach(p=>p.el.remove());
+  P=[];parent=[];finished=false;sel=null;
+  trays=Array.from({length:TRAYS},()=>[]);
+
+  for(let q=0;q<rows;q++)for(let c=0;c<cols;c++){
+    const cv=document.createElement("canvas");
+    cv.width=w;cv.height=h;cv.className="piece";
+    const g=cv.getContext("2d");
+    g.translate(margin-c*cellW,margin-q*cellH);
+    g.save();piecePath(g,q,c);g.clip();g.drawImage(srcCv,0,0);g.restore();
+    piecePath(g,q,c);
+    g.strokeStyle="rgba(255,255,255,.42)";g.lineWidth=1.7;g.stroke();
+    g.strokeStyle="rgba(30,20,10,.5)";g.lineWidth=1;g.stroke();
+    const i=P.length;
+    const p={i,r:q,c,el:cv,ctx:g,w,h,hx:boardX+c*cellW-margin,hy:boardY+q*cellH-margin,x:0,y:0,rot:0,tray:-1};
+    cv.piece=p;parent[i]=i;P.push(p);surface.appendChild(cv);
+  }
+
+  if(restore){
+    parent=restore.parent.slice();
+    restore.pieces.forEach(([x,y,tray,rot],i)=>{
+      const p=P[i];p.x=x;p.y=y;p.rot=rot||0;
+      if(tray>=0){p.tray=tray;trays[tray].push(p);$("#pile"+tray).appendChild(p.el);}
+      paint(p);
+    });
+  }else scatter(P);
+
+  renderTrays();stopClock();fitView();
+  if(restore&&P.every(atHome))finished=true;
+}
+
+/* Lay loose pieces on the apron around the board, on a jittered grid so
+   they rarely overlap and never start on top of the picture. */
+function scatter(list){
+  const loose=list.filter(p=>p.tray<0);
+  if(!loose.length)return;
+  const w=loose[0].w,h=loose[0].h,pad=10;
+  const stepX=w*0.92,stepY=h*0.92;
+  const bx0=boardX-w*0.55,bx1=boardX+boardW+w*0.05,by0=boardY-h*0.55,by1=boardY+boardH+h*0.05;
+  const slots=[];
+  for(let y=pad;y<SH-h-pad;y+=stepY)for(let x=pad;x<SW-w-pad;x+=stepX){
+    if(x>bx0&&x<bx1&&y>by0&&y<by1)continue;            // keep the board clear
+    slots.push({x,y});
+  }
+  for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slots[i],slots[j]]=[slots[j],slots[i]];}
+  loose.forEach((p,k)=>{
+    const s=slots[k%slots.length]||{x:pad,y:pad};
+    const jx=(Math.random()-.5)*stepX*0.16, jy=(Math.random()-.5)*stepY*0.16;
+    p.x=Math.max(2,Math.min(SW-p.w-2,s.x+jx));
+    p.y=Math.max(2,Math.min(SH-p.h-2,s.y+jy));
+    p.rot=[0,90,180,270][Math.floor(Math.random()*4)];   // tipped out of the box, every which way
+    p.el.style.zIndex=++zTop;
+    paint(p);
+  });
+}
+
+/* ============ snapping ============ */
+const DIRS=[[0,1],[0,-1],[1,0],[-1,0]];
+const at=(r,c)=>(r<0||c<0||r>=rows||c>=cols)?null:P[r*cols+c];
+const moveGroup=(m,dx,dy)=>m.forEach(p=>{p.x+=dx;p.y+=dy;paint(p);});
+function findSnap(members){
+  for(const m of members)                                 // only a square-on piece can sit on the board
+    if(m.rot%360===0&&Math.abs(m.x-m.hx)<TOL&&Math.abs(m.y-m.hy)<TOL)
+      return{type:"board",dx:m.hx-m.x,dy:m.hy-m.y};
+  for(const m of members)for(const[dr,dc]of DIRS){
+    const q=at(m.r+dr,m.c+dc);
+    if(!q||q.tray>=0||find(q.i)===find(m.i))continue;
+    if(q.rot!==m.rot)continue;                            // both must face the same way
+    const want=rotVec(dc*cellW,dr*cellH,m.rot);           // the gap turns with the pieces
+    const ex=(m.x+want.x)-q.x, ey=(m.y+want.y)-q.y;
+    if(Math.abs(ex)<TOL&&Math.abs(ey)<TOL)return{type:"bond",a:m,b:q,dx:ex,dy:ey};
+  }
+  return null;
+}
+function commitSnap(members){
+  const seen=new Set();let did=false;
+  for(let pass=0;pass<14;pass++){
+    const snap=findSnap(members);
+    if(!snap)break;
+    if(snap.type==="board"){
+      members.forEach(p=>{p.x=p.hx;p.y=p.hy;p.rot=0;p.el.style.zIndex=2;paint(p);
+        p.el.classList.remove("seated");void p.el.offsetWidth;p.el.classList.add("seated");});
+      blip(660,.07);blip(990,.09,.05);
+      did=true;
+      if(P.every(atHome))finish();
+      break;
+    }
+    const key=Math.min(snap.a.i,snap.b.i)+":"+Math.max(snap.a.i,snap.b.i);
+    if(seen.has(key))break;
+    seen.add(key);
+    moveGroup(members,-snap.dx,-snap.dy);
+    union(snap.a.i,snap.b.i);
+    members=groupOf(snap.a);
+    members.forEach(p=>{p.el.classList.remove("joined");void p.el.offsetWidth;p.el.classList.add("joined");});
+    blip(520,.06);did=true;
+  }
+  if(did)saveProgress();
+  return did;
+}
+
+/* ============ sound ============ */
+let actx=null;
+function blip(freq,dur=.06,delay=0){
+  if(!$("#sound").checked)return;
+  try{
+    actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+    const t=actx.currentTime+delay,o=actx.createOscillator(),g=actx.createGain();
+    o.type="triangle";o.frequency.value=freq;
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.15,t+.008);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g).connect(actx.destination);o.start(t);o.stop(t+dur+.02);
+  }catch(_){}
+}
+
+/* ============ hit test (rotation + zoom aware) ============ */
+function hitPiece(cx,cy){
+  for(const el of document.elementsFromPoint(cx,cy)){
+    const p=el.piece;if(!p)continue;
+    const r=el.getBoundingClientRect();                  // AABB of a rotated box — its centre is still exact
+    const sc=(p.tray>=0?1:zoom);
+    const mx=r.left+r.width/2,my=r.top+r.height/2;
+    const loc=rotVec((cx-mx)/sc,(cy-my)/sc,-p.rot);
+    const x=Math.floor(loc.x+p.w/2), y=Math.floor(loc.y+p.h/2);
+    if(x<0||y<0||x>=p.w||y>=p.h)continue;
+    try{if(p.ctx.getImageData(x,y,1,1).data[3]>24)return p;}catch(_){return p;}
+  }
+  return null;
+}
+/* Turn a whole group 90° about its own centre. */
+function rotateGroup(p){
+  const members=groupOf(p).filter(m=>m.tray<0);
+  if(!members.length)return;
+  const cs=members.map(m=>({x:m.x+m.w/2,y:m.y+m.h/2}));
+  const gx=cs.reduce((a,c)=>a+c.x,0)/cs.length, gy=cs.reduce((a,c)=>a+c.y,0)/cs.length;
+  members.forEach((m,k)=>{
+    const v=rotVec(cs[k].x-gx,cs[k].y-gy,90);
+    m.x=gx+v.x-m.w/2;m.y=gy+v.y-m.h/2;
+    m.rot=(m.rot+90)%360;paint(m);
+  });
+  blip(300,.045);saveProgress();
+}
+
+/* ============ drag / pan / pinch ============ */
+let drag=null,pan=null,pinch=null;
+const pts=new Map(),THRESH=6;
+stage.addEventListener("pointerdown",e=>{
+  if(e.target.closest(".lid,.banner"))return;             // panels on the table keep their own clicks
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===2){cancelDrag();pan=null;
+    const[a,b]=[...pts.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoom};return;}
+  if(pts.size>2)return;
+  const p=hitPiece(e.clientX,e.clientY);
+  if(p)beginDrag(p,e);
+  else{pan={x:e.clientX,y:e.clientY,px:panX,py:panY};stage.classList.add("panning");}
+  e.preventDefault();
+});
+function beginDrag(p,e){
+  const members=groupOf(p),s=toSurface(e.clientX,e.clientY);
+  drag={p,members,sx:s.x,sy:s.y,ox:p.x,oy:p.y,live:false,snap:members.map(m=>({m,x:m.x,y:m.y}))};
+}
+/* Pick a piece straight out of a tray and carry it to the table. */
+$$(".pile").forEach(pile=>pile.addEventListener("pointerdown",e=>{
+  const p=e.target.piece;if(!p)return;
+  e.preventDefault();
+  const keepR=p.rot;
+  const s=toSurface(e.clientX,e.clientY);
+  pullFromTray(p,false);
+  p.rot=keepR;
+  p.x=Math.max(0,Math.min(SW-p.w,s.x-p.w/2));            // the tray sits outside the surface
+  p.y=Math.max(0,Math.min(SH-p.h,s.y-p.h/2));
+  paint(p);
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  beginDrag(p,e);
+  drag.live=true;startClock();
+  p.el.classList.add("dragging");p.el.style.zIndex=++zTop;
+}));
+let lastPt=null;
+window.addEventListener("pointermove",e=>{
+  lastPt={x:e.clientX,y:e.clientY};                       // so R knows which piece you mean
+  if(pts.has(e.pointerId))pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&pts.size>=2){
+    const[a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y),r=stage.getBoundingClientRect();
+    setZoom(pinch.z*(d/pinch.d),(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);return;}
+  if(pan){panX=pan.px+(e.clientX-pan.x);panY=pan.py+(e.clientY-pan.y);clampPan();applyView();return;}
+  if(!drag)return;
+  const s=toSurface(e.clientX,e.clientY),dx=s.x-drag.sx,dy=s.y-drag.sy;
+  if(!drag.live){
+    if(Math.hypot(dx*zoom,dy*zoom)<THRESH)return;
+    drag.live=true;startClock();select(null);
+    drag.members.forEach(m=>{m.el.classList.add("dragging");m.el.style.zIndex=++zTop;});
+  }
+  moveGroup(drag.members,(drag.ox+dx)-drag.p.x,(drag.oy+dy)-drag.p.y);
+  const t=overTray(e.clientX,e.clientY);
+  $$(".pile").forEach((el,i)=>el.classList.toggle("over",i===t));
+});
+function overTray(cx,cy){
+  for(let i=0;i<TRAYS;i++){
+    const d=$("#drawer"+i);if(d.classList.contains("folded"))continue;
+    const r=$("#pile"+i).getBoundingClientRect();
+    if(cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom)return i;
+  }
+  return -1;
+}
+function endPointer(e){
+  pts.delete(e.pointerId);
+  if(pts.size<2)pinch=null;
+  if(pan){pan=null;stage.classList.remove("panning");}
+  if(!drag)return;
+  const d=drag;drag=null;
+  d.members.forEach(m=>m.el.classList.remove("dragging"));
+  $$(".pile").forEach(el=>el.classList.remove("over"));
+  if(!d.live){select(d.p);return;}
+  const t=overTray(e.clientX,e.clientY);
+  if(t>=0){
+    if(d.members.length>1)toast("Joined pieces stay on the table — trays hold singles.");
+    else{toTray(d.p,t);saveProgress();}
+    return;
+  }
+  commitSnap(d.members);
+}
+window.addEventListener("pointerup",endPointer);
+window.addEventListener("pointercancel",e=>{pts.delete(e.pointerId);pinch=null;pan=null;
+  stage.classList.remove("panning");cancelDrag();});
+stage.addEventListener("dblclick",e=>{const p=hitPiece(e.clientX,e.clientY);if(p)rotateGroup(p);});
+function cancelDrag(){
+  if(!drag)return;
+  drag.snap.forEach(s=>{s.m.x=s.x;s.m.y=s.y;s.m.el.classList.remove("dragging");paint(s.m);});
+  drag=null;
+}
+stage.addEventListener("wheel",e=>{
+  e.preventDefault();const r=stage.getBoundingClientRect();
+  setZoom(zoom*(e.deltaY<0?1.12:1/1.12),e.clientX-r.left,e.clientY-r.top);
+},{passive:false});
+
+/* ============ reference lid ============ */
+const lid=$("#lid");
+let lidDrag=null;
+lid.addEventListener("pointerdown",e=>{
+  if(e.target.id==="lidClose")return;
+  e.stopPropagation();
+  const r=lid.getBoundingClientRect(),sr=stage.getBoundingClientRect();
+  lidDrag={dx:e.clientX-r.left,dy:e.clientY-r.top,sr};
+  lid.setPointerCapture(e.pointerId);lid.classList.add("grabbing");
+});
+lid.addEventListener("pointermove",e=>{
+  if(!lidDrag)return;
+  e.stopPropagation();
+  const sr=stage.getBoundingClientRect();
+  const x=Math.max(4,Math.min(sr.width-lid.offsetWidth-4,e.clientX-sr.left-lidDrag.dx));
+  const y=Math.max(4,Math.min(sr.height-lid.offsetHeight-4,e.clientY-sr.top-lidDrag.dy));
+  lid.style.left=x+"px";lid.style.top=y+"px";lid.style.right="auto";lid.style.bottom="auto";
+});
+lid.addEventListener("pointerup",e=>{lidDrag=null;lid.classList.remove("grabbing");e.stopPropagation();});
+$("#lidClose").onclick=()=>setLid(false);
+function setLid(on){lid.hidden=!on;$("#lidBtn").setAttribute("aria-pressed",on);}
+$("#lidBtn").onclick=()=>setLid(lid.hidden);
+
+/* ============ trays ============ */
+function toTray(p,i){
+  if(p.tray<0){p.tray=i;trays[i].push(p);}
+  p.el.style.zIndex="";
+  $("#pile"+i).appendChild(p.el);                       // flex-wrap keeps them evenly spaced, full size
+  p.el.style.left="";p.el.style.top="";
+  renderTrays();
+}
+function pullFromTray(p,toTable){
+  if(p.tray<0)return;
+  trays[p.tray]=trays[p.tray].filter(x=>x!==p);p.tray=-1;
+  surface.appendChild(p.el);p.el.style.zIndex=++zTop;
+  if(toTable){
+    p.x=boardX+boardW*0.15+Math.random()*boardW*0.6;
+    p.y=boardY+boardH+margin*0.6+Math.random()*Math.max(30,SH-boardY-boardH-p.h-10);
+    p.y=Math.min(p.y,SH-p.h-4);
+  }
+  paint(p);renderTrays();saveProgress();
+}
+function renderTrays(){
+  trays.forEach((t,i)=>{
+    const pile=$("#pile"+i);
+    $("#n"+i).textContent=t.length;
+    [...pile.children].forEach(c=>{if(!c.piece)c.remove();});
+    if(!t.length){
+      const s=document.createElement("span");s.className="pile-empty";
+      s.textContent=i===0?"Drop pieces here — edges first works well."
+                         :"A second tray, for sorting by color or by part of the picture.";
+      pile.appendChild(s);
+    }
+  });
+}
+$$(".fold").forEach(b=>b.onclick=()=>{
+  const i=b.dataset.fold, d=$("#drawer"+i);
+  d.classList.toggle("folded");
+  b.textContent = d.classList.contains("folded") ? (i==="0"?"›":"‹") : (i==="0"?"‹":"›");
+  sizeBench();
+});
+function sizeBench(){
+  const bench=$("#bench");
+  bench.style.setProperty("--l",$("#drawer0").classList.contains("folded")?"46px":"250px");
+  bench.style.setProperty("--r",$("#drawer1").classList.contains("folded")?"46px":"250px");
+  requestAnimationFrame(()=>{clampPan();applyView();});
+}
+$("#foldBtn").onclick=()=>{
+  const any=!$("#drawer0").classList.contains("folded")||!$("#drawer1").classList.contains("folded");
+  [0,1].forEach(i=>{
+    $("#drawer"+i).classList.toggle("folded",any);
+    const b=$(`.fold[data-fold="${i}"]`);
+    b.textContent = any ? (i===0?"›":"‹") : (i===0?"‹":"›");
+  });
+  $("#foldBtn").textContent=any?"Show trays":"Hide trays";
+  sizeBench();
+};
+[0,1].forEach(i=>{
+  $("#name"+i).addEventListener("input",e=>{$("#rail"+i).textContent=e.target.value||("Tray "+(i+1));saveProgress();});
+});
+
+/* ============ keyboard ============ */
+function select(p){
+  if(sel&&sel.el)sel.el.classList.remove("sel");
+  sel=p||null;
+  if(sel)sel.el.classList.add("sel");
+}
+function cycle(step){
+  const loose=P.filter(p=>p.tray<0&&!atHome(p));
+  if(!loose.length)return;
+  const k=sel?loose.indexOf(sel):-1;
+  select(loose[((k+step)%loose.length+loose.length)%loose.length]);
+  if(sel)sel.el.style.zIndex=++zTop;
+}
+window.addEventListener("keydown",e=>{
+  if(e.target.matches("input,select,textarea"))return;
+  if($("#view-table").hidden)return;
+  const k=e.key.toLowerCase();
+  if(k==="n"){cycle(1);e.preventDefault();return;}
+  if(k==="p"){cycle(-1);e.preventDefault();return;}
+  if(k==="r"){                                           // whatever is under the cursor, else the selection
+    const target=(lastPt&&hitPiece(lastPt.x,lastPt.y))||sel;
+    if(target)rotateGroup(target);
+    e.preventDefault();return;
+  }
+  if(!sel)return;
+  if(k==="escape"){select(null);return;}
+  if(k==="enter"){startClock();if(!commitSnap(groupOf(sel)))blip(180,.07);e.preventDefault();return;}
+  const step=e.shiftKey?1:10;
+  const d={arrowup:[0,-step],arrowdown:[0,step],arrowleft:[-step,0],arrowright:[step,0]}[k];
+  if(d){startClock();moveGroup(groupOf(sel),d[0],d[1]);e.preventDefault();}
+});
+
+/* ============ clock ============ */
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+function startClock(){if(running||finished)return;running=true;t0=Date.now()-elapsed*1000;
+  timerId=setInterval(()=>{elapsed=(Date.now()-t0)/1000;$("#clockv").textContent=fmt(elapsed);
+    if(Math.floor(elapsed)%15===0)saveProgress();},500);}
+function stopClock(){running=false;clearInterval(timerId);$("#clockv").textContent=fmt(elapsed);}
+
+/* ============ in-progress storage ============ */
+const PKEY="puzzletable.progress.v1", MAXSAVED=8;
+const readP=()=>{try{return JSON.parse(localStorage.getItem(PKEY))||[];}catch(_){return[];}};
+function writeP(list){
+  try{localStorage.setItem(PKEY,JSON.stringify(list));}
+  catch(_){                                             // ponytail: drop the oldest and retry once
+    list.shift();
+    try{localStorage.setItem(PKEY,JSON.stringify(list));}catch(__){toast("This browser is out of storage room.");}
+  }
+}
+let saveTimer=null;
+function saveProgress(){
+  if(!P.length||finished||!$("#autosave").checked)return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const list=readP().filter(x=>x.id!==puzzleId);
+    list.push({
+      id:puzzleId,name:currentName,count:+$("#difficulty").value,guide:$("#guide").value,
+      elapsed:Math.round(elapsed),rows,cols,bw:boardW,bh:boardH,hTab,vTab,
+      trayNames:[$("#name0").value,$("#name1").value],
+      parent:parent.slice(),
+      pieces:P.map(p=>[Math.round(p.x),Math.round(p.y),p.tray,p.rot]),
+      placed:placedCount(),
+      src:srcCv.toDataURL("image/jpeg",.72),
+      at:Date.now()
+    });
+    while(list.length>MAXSAVED)list.shift();
+    writeP(list);
+    renderProgress();
+  },400);
+}
+function renderProgress(){
+  const list=readP().slice().sort((a,b)=>b.at-a.at),el=$("#progList");
+  $("#progPill").textContent=list.length;
+  el.innerHTML="";
+  $("#progEmpty").hidden=list.length>0;
+  list.forEach(it=>{
+    const card=document.createElement("div");
+    card.className="pick";card.style.cursor="default";
+    const pct=Math.round(it.placed/(it.rows*it.cols)*100);
+    card.innerHTML=`<img src="${it.src}" alt="${it.name}">
+      <div class="meta"><b>${it.name}</b><span class="tagline">${it.rows*it.cols} pieces · ${pct}% placed</span></div>
+      <div class="progline"><div style="width:${pct}%"></div></div>
+      <div class="stamp"><span>${fmt(it.elapsed)}</span><span>${new Date(it.at).toLocaleDateString()}</span></div>
+      <div class="mini"></div>`;
+    const mini=card.querySelector(".mini");
+    const go=document.createElement("button");
+    go.className="btn primary";go.textContent=it.id===puzzleId?"On the table":"Pick up where you left off";
+    go.disabled=it.id===puzzleId;
+    go.onclick=()=>resume(it);
+    const del=document.createElement("button");
+    del.className="btn ghost-danger";del.textContent="Discard";
+    del.onclick=()=>{writeP(readP().filter(x=>x.id!==it.id));renderProgress();toast("Removed from In progress.");};
+    mini.append(go,del);
+    el.appendChild(card);
+  });
+}
+function resume(saved){
+  saveProgress();
+  const im=new Image();
+  im.onload=()=>{
+    current={type:"img",img:im};currentName=saved.name;
+    buildPuzzle(saved);
+    showTab("table");renderProgress();
+    toast(`“${saved.name}” is back on the table.`);
+  };
+  im.onerror=()=>toast("That saved puzzle couldn't be opened.");
+  im.src=saved.src;
+}
+
+/* ============ finish ============ */
+function finish(){
+  if(finished)return;
+  stopClock();finished=true;
+  writeP(readP().filter(x=>x.id!==puzzleId));renderProgress();
+  boardEl.classList.add("done");
+  blip(523,.1);blip(659,.1,.1);blip(784,.2,.2);
+  $("#bannerTitle").textContent="All the pieces are in.";
+  $("#bannerSub").textContent=`${P.length} pieces · ${fmt(elapsed)}`;
+  setTimeout(()=>$("#banner").classList.add("show"),700);   // let them see the picture first
+}
+$("#keepLooking").onclick=()=>$("#banner").classList.remove("show");
+$("#frameIt").onclick=()=>{
+  $("#banner").classList.remove("show");
+  editing=null;pendingFrame="oak";
+  $("#finTitle").textContent="Choose a frame";
+  $("#editFields").hidden=true;                          // naming happens in the gallery
+  $("#takeDown").hidden=true;
+  $("#finPreview").innerHTML=`<div class="frame fr-oak lg" id="finFrame" style="margin:0 auto"><img src="${thumbData()}" alt="Your finished puzzle"></div>`;
+  $("#finCut").textContent=P.length+" pieces";
+  $("#finTime").textContent=fmt(elapsed);
+  $("#hangIt").textContent="Hang it in the gallery";
+  renderFramePick();$("#scrim").hidden=false;
+};
+const thumbData=()=>{const t=document.createElement("canvas");t.width=520;t.height=390;
+  t.getContext("2d").drawImage(srcCv,0,0,520,390);return t.toDataURL("image/jpeg",.78);};
+function renderFramePick(){
+  const el=$("#framePick");el.innerHTML="";
+  FRAMES.forEach(f=>{
+    const b=document.createElement("button");
+    b.setAttribute("aria-pressed",f.key===pendingFrame);
+    b.innerHTML=`<div class="frame fr-${f.key} swatch"></div><span class="frame-name">${f.name}</span>`;
+    b.onclick=()=>{pendingFrame=f.key;const fr=$("#finFrame");if(fr)fr.className="frame fr-"+f.key+" lg";renderFramePick();};
+    el.appendChild(b);
+  });
+}
+const GKEY="puzzletable.gallery.v3";
+const readG=()=>{try{return JSON.parse(localStorage.getItem(GKEY))||[];}catch(_){return[];}};
+const writeG=g=>{try{localStorage.setItem(GKEY,JSON.stringify(g));}catch(_){toast("This browser is blocking storage.");}};
+$("#hangIt").onclick=()=>{
+  const g=readG();
+  if(editing!==null){
+    const it=g.find(x=>x.id===editing);
+    if(it){it.frame=pendingFrame;
+      it.title=($("#finName").value||"").trim()||it.title;
+      it.desc=($("#finDesc").value||"").trim();
+      writeG(g);}
+    $("#scrim").hidden=true;renderGallery();toast("Saved.");
+    return;
+  }
+  const id=Date.now();
+  g.push({id,title:currentName,desc:"",source:currentName,pieces:P.length,time:fmt(elapsed),
+    frame:pendingFrame,thumb:thumbData(),at:id});
+  writeG(g);
+  $("#scrim").hidden=true;renderGallery();showTab("gallery");
+  setTimeout(()=>{openHung(id);toast("Hung up. Give it a name.");},450);   // straight into naming
+};
+$("#takeDown").onclick=()=>{
+  if(editing===null)return;
+  writeG(readG().filter(x=>x.id!==editing));
+  $("#scrim").hidden=true;renderGallery();toast("Taken down.");
+};
+$("#again").onclick=()=>{$("#scrim").hidden=true;editing=null;finished=false;buildPuzzle();};
+$("#share").onclick=async()=>{
+  const text=`I finished a ${P.length}-piece puzzle in ${fmt(elapsed)} on Puzzle Table.`;
+  try{
+    if(navigator.share){await navigator.share({title:"Puzzle Table",text});return;}
+    await navigator.clipboard.writeText(text);toast("Copied — paste it wherever you like.");
+  }catch(_){toast("Sharing isn't available here.");}
+};
+$("#scrim").onclick=e=>{if(e.target===$("#scrim"))$("#scrim").hidden=true;};
+
+/* ============ gallery, grouped by month ============ */
+function openHung(id){
+  const it=readG().find(x=>x.id===id);if(!it)return;
+  editing=it.id;pendingFrame=it.frame;
+  $("#finTitle").textContent="About this one";
+  $("#editFields").hidden=false;
+  $("#finName").value=it.title;
+  $("#finDesc").value=it.desc||"";
+  $("#takeDown").hidden=false;
+  $("#finPreview").innerHTML=`<div class="frame fr-${it.frame} lg" id="finFrame" style="margin:0 auto"><img src="${it.thumb}" alt="${it.title}"></div>`;
+  $("#finCut").textContent=it.pieces+" pieces";$("#finTime").textContent=it.time;
+  $("#hangIt").textContent="Save";
+  renderFramePick();$("#scrim").hidden=false;
+  setTimeout(()=>$("#finName").focus(),60);
+}
+function renderGallery(){
+  const g=readG().slice().sort((a,b)=>a.at-b.at),row=$("#hangrow");
+  $("#galPill").textContent=g.length;
+  row.innerHTML="";$("#roomEmpty").hidden=g.length>0;
+  const months=new Map();
+  g.forEach(it=>{
+    const d=new Date(it.at), key=d.getFullYear()+"-"+d.getMonth();
+    if(!months.has(key))months.set(key,{label:d.toLocaleString(undefined,{month:"long",year:"numeric"}),items:[]});
+    months.get(key).items.push(it);
+  });
+  [...months.values()].reverse().forEach(m=>{
+    const grp=document.createElement("div");grp.className="monthgroup";
+    grp.innerHTML=`<div class="monthlabel">${m.label}</div>`;
+    const r=document.createElement("div");r.className="monthrow";
+    m.items.slice().reverse().forEach(it=>{
+      const d=document.createElement("div");
+      d.className="hung";d.tabIndex=0;d.setAttribute("role","button");
+      d.setAttribute("aria-label",`${it.title}. Rename or change frame.`);
+      d.innerHTML=`<div class="frame fr-${it.frame} md"><img src="${it.thumb}" alt="${it.title}"></div>
+        <div class="plaque"><b>${it.title}</b><span>${it.pieces} pieces · ${it.time} · ${new Date(it.at).toLocaleDateString()}</span>
+        ${it.desc?`<em>${it.desc.replace(/[<>&]/g,"")}</em>`:""}</div>`;
+      d.onclick=()=>openHung(it.id);
+      d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openHung(it.id);}};
+      r.appendChild(d);
+    });
+    grp.appendChild(r);row.appendChild(grp);
+  });
+}
+$("#roomscroll").addEventListener("scroll",e=>{
+  e.target.querySelector(".lights").style.transform=`translateX(${e.target.scrollLeft*0.45}px)`;
+});
+$("#toTable").onclick=()=>showTab("table");
+$("#progToPics").onclick=()=>showTab("pictures");
+
+/* ============ pictures ============ */
+function renderLibs(){
+  const el=$("#libs");el.innerHTML="";
+  LIB.forEach((item,i)=>{
+    const b=document.createElement("button");
+    b.className="pick";b.setAttribute("aria-pressed",current.type==="lib"&&current.idx===i);
+    const cv=document.createElement("canvas");cv.width=320;cv.height=240;
+    item.draw(cv.getContext("2d"),320,240);b.appendChild(cv);
+    const m=document.createElement("div");m.className="meta";
+    m.innerHTML=`<b>${item.name}</b><span class="tagline">${item.note}</span>`;
+    b.appendChild(m);
+    b.onclick=()=>{current={type:"lib",idx:i};currentName=item.name;renderLibs();buildPuzzle();
+      showTab("table");toast(`“${item.name}” is on the table.`);};
+    el.appendChild(b);
+  });
+  const up=document.createElement("label");
+  up.className="uploadcard";
+  up.innerHTML=`<b>Use your own photo</b><span>It stays on your device — nothing is uploaded.</span>
+    <input type="file" accept="image/*" hidden>`;
+  up.querySelector("input").addEventListener("change",onFile);
+  el.appendChild(up);
+}
+function onFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const im=new Image();
+  im.onload=()=>{current={type:"img",img:im};currentName=f.name.replace(/\.[^.]+$/,"")||"Your picture";
+    renderLibs();buildPuzzle();showTab("table");toast("Your picture is on the table.");};
+  im.onerror=()=>toast("That file didn't open as an image — try a JPG or PNG.");
+  im.src=URL.createObjectURL(f);
+}
+
+/* ============ tabs ============ */
+function showTab(name){
+  ["table","progress","pictures","gallery"].forEach(n=>{
+    $("#view-"+n).hidden=n!==name;
+    $("#tab-"+n).setAttribute("aria-selected",n===name);
+  });
+  if(name==="table")requestAnimationFrame(()=>{clampPan();applyView();});
+  if(name==="progress")renderProgress();
+  if(name==="gallery")renderGallery();
+}
+$("#tab-table").onclick=()=>showTab("table");
+$("#tab-progress").onclick=()=>{saveProgress();showTab("progress");};
+$("#tab-pictures").onclick=()=>showTab("pictures");
+$("#tab-gallery").onclick=()=>showTab("gallery");
+
+/* ============ toast, settings, confirm ============ */
+let toastId=null;
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(toastId);toastId=setTimeout(()=>t.classList.remove("show"),2600);}
+$("#setBtn").onclick=e=>{
+  e.stopPropagation();
+  const m=$("#setMenu");m.hidden=!m.hidden;
+  $("#setBtn").setAttribute("aria-expanded",!m.hidden);
+};
+document.addEventListener("click",e=>{
+  if(!$("#setMenu").hidden&&!e.target.closest(".pop")){$("#setMenu").hidden=true;$("#setBtn").setAttribute("aria-expanded","false");}
+});
+$("#restart").onclick=()=>{$("#confirm").hidden=false;};
+$("#cfNo").onclick=()=>{$("#confirm").hidden=true;};
+$("#cfYes").onclick=()=>{
+  $("#confirm").hidden=true;
+  writeP(readP().filter(x=>x.id!==puzzleId));
+  const keep=current;                                   // same picture, fresh cut
+  finished=false;current=keep;buildPuzzle();
+  renderProgress();toast("Fresh start.");
+};
+$("#confirm").onclick=e=>{if(e.target===$("#confirm"))$("#confirm").hidden=true;};
+
+/* ============ controls ============ */
+$("#difficulty").onchange=()=>buildPuzzle();
+$("#guide").onchange=()=>{drawBoardBacking();saveProgress();};
+$("#zoomIn").onclick=()=>setZoom(zoom*1.25);
+$("#zoomOut").onclick=()=>setZoom(zoom/1.25);
+$("#zoomFit").onclick=fitView;
+$("#shuffle").onclick=()=>{scatter(P.filter(p=>groupOf(p).length===1&&!atHome(p)));saveProgress();};
+window.addEventListener("beforeunload",()=>{
+  if(!P.length||finished||!$("#autosave").checked)return;
+  clearTimeout(saveTimer);
+  const list=readP().filter(x=>x.id!==puzzleId);
+  list.push({id:puzzleId,name:currentName,count:+$("#difficulty").value,guide:$("#guide").value,
+    elapsed:Math.round(elapsed),rows,cols,bw:boardW,bh:boardH,hTab,vTab,
+    trayNames:[$("#name0").value,$("#name1").value],parent:parent.slice(),
+    pieces:P.map(p=>[Math.round(p.x),Math.round(p.y),p.tray,p.rot]),placed:placedCount(),
+    src:srcCv.toDataURL("image/jpeg",.72),at:Date.now()});
+  while(list.length>MAXSAVED)list.shift();
+  writeP(list);
+});
+let rz=null;
+window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{clampPan();applyView();},200);});
+
+/* ============ self-check ============ */
+function selfCheck(){
+  const a=P[0],b=at(0,1);if(!b)return;
+  const ax=a.x,ay=a.y,bx=b.x,by=b.y;
+  const ar=a.rot,br=b.rot;
+  a.x=50000;a.y=50000;a.rot=0;b.rot=0;b.x=a.x+cellW+2;b.y=a.y+1;
+  console.assert(findSnap([a])?.type==="bond","neighbour inside tolerance should bond");
+  b.rot=90;
+  console.assert(findSnap([a])===null,"pieces facing different ways must not bond");
+  b.rot=0;b.x=a.x+cellW+90;
+  console.assert(findSnap([a])===null,"neighbour outside tolerance must not bond");
+  a.rot=ar;b.rot=br;
+  a.x=ax;a.y=ay;b.x=bx;b.y=by;paint(a);paint(b);
+  const saved={rows,cols,bw:boardW,bh:boardH};
+  console.assert(saved.rows*saved.cols===P.length,"piece count matches the grid");
+}
+
+renderLibs();renderGallery();renderProgress();sizeBench();buildPuzzle();selfCheck();
+})();
+</script>
+
+</body></html>
